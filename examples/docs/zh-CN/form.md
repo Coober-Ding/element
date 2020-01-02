@@ -329,10 +329,10 @@ W3C 标准中有如下[规定](https://www.w3.org/MarkUp/html-spec/html-spec_8.h
           callback();
         }
       };
-      var validatePass2 = (rule, value, callback) => {
+      var validatePass2 = (rule, value, callback, source) => {
         if (value === '') {
           callback(new Error('请再次输入密码'));
-        } else if (value !== this.ruleForm.pass) {
+        } else if (value !== source.pass) {
           callback(new Error('两次输入密码不一致!'));
         } else {
           callback();
@@ -400,7 +400,8 @@ W3C 标准中有如下[规定](https://www.w3.org/MarkUp/html-spec/html-spec_8.h
     v-for="(domain, index) in dynamicValidateForm.domains"
     :label="'域名' + index"
     :key="domain.key"
-    :prop="'domains.' + index + '.value'"
+    :model="domain"
+    prop="value"
     :rules="{
       required: true, message: '域名不能为空', trigger: 'blur'
     }"
@@ -616,10 +617,11 @@ W3C 标准中有如下[规定](https://www.w3.org/MarkUp/html-spec/html-spec_8.h
 
 | 参数      | 说明          | 类型      | 可选值                           | 默认值  |
 |---------- |-------------- |---------- |--------------------------------  |-------- |
-| prop    | 表单域 model 字段，在使用 validate、resetFields 方法的情况下，该属性是必填的 | string    | 传入 Form 组件的 `model` 中的字段 | — |
+| prop    | 表单域 model 字段，在使用 validate、resetFields 方法的情况下，该属性是必填的 | string    | 传入 Form 或 Item 组件的 `model` 中的字段 | — |
 | label | 标签文本 | string | — | — |
 | label-width | 表单域标签的的宽度，例如 '50px'。支持 `auto`。 | string |       —       | — |
 | required | 是否必填，如不设置，则会根据校验规则自动生成 | boolean | — | false |
+| model    | 同form的model，表单数据。不设置则取form上的model，在validate时会用到。Item组件在被v-for创建时，不方便使用form的model。此时使用该属性会更方便。 | object | — | — |
 | rules    | 表单验证规则 | object | — | — |
 | error    | 表单域验证错误信息, 设置该值会使表单验证状态变为`error`，并显示该错误信息 | string | — | — |
 | show-message  | 是否显示校验错误信息 | boolean | — | true |

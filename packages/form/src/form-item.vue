@@ -11,16 +11,16 @@
   ]">
     <label-wrap
       :is-auto-width="labelStyle && labelStyle.width === 'auto'"
-      :update-all="form.labelWidth === 'auto'">
+      :update-all="elForm.labelWidth === 'auto'">
       <label :for="labelFor" class="el-form-item__label" :style="labelStyle" v-if="label || $slots.label">
-        <slot name="label">{{label + form.labelSuffix}}</slot>
+        <slot name="label">{{label + elForm.labelSuffix}}</slot>
       </label>
     </label-wrap>
     <div class="el-form-item__content" :style="contentStyle">
       <slot></slot>
       <transition name="el-zoom-in-top">
         <slot
-          v-if="validateState === 'error' && showMessage && form.showMessage"
+          v-if="validateState === 'error' && showMessage && elForm.showMessage"
           name="error"
           :error="validateMessage">
           <div
@@ -67,6 +67,7 @@
         type: Boolean,
         default: undefined
       },
+      model: Object,
       rules: [Object, Array],
       error: String,
       validateStatus: String,
@@ -103,8 +104,8 @@
       },
       labelStyle() {
         const ret = {};
-        if (this.form.labelPosition === 'top') return ret;
-        const labelWidth = this.labelWidth || this.form.labelWidth;
+        if (this.elForm.labelPosition === 'top') return ret;
+        const labelWidth = this.labelWidth || this.elForm.labelWidth;
         if (labelWidth) {
           ret.width = labelWidth;
         }
@@ -113,13 +114,13 @@
       contentStyle() {
         const ret = {};
         const label = this.label;
-        if (this.form.labelPosition === 'top' || this.form.inline) return ret;
+        if (this.elForm.labelPosition === 'top' || this.elForm.inline) return ret;
         if (!label && !this.labelWidth && this.isNested) return ret;
-        const labelWidth = this.labelWidth || this.form.labelWidth;
+        const labelWidth = this.labelWidth || this.elForm.labelWidth;
         if (labelWidth === 'auto') {
           if (this.labelWidth === 'auto') {
             ret.marginLeft = this.computedLabelWidth;
-          } else if (this.form.labelWidth === 'auto') {
+          } else if (this.elForm.labelWidth === 'auto') {
             ret.marginLeft = this.elForm.autoLabelWidth;
           }
         } else {
@@ -127,20 +128,21 @@
         }
         return ret;
       },
-      form() {
+      isNested() {
         let parent = this.$parent;
         let parentName = parent.$options.componentName;
+        let isNested = false;
         while (parentName !== 'ElForm') {
           if (parentName === 'ElFormItem') {
-            this.isNested = true;
+            isNested = true;
           }
           parent = parent.$parent;
           parentName = parent.$options.componentName;
         }
-        return parent;
+        return isNested;
       },
       fieldValue() {
-        const model = this.form.model;
+        const model = this.model || this.elForm.model;
         if (!model || !this.prop) { return; }
 
         let path = this.prop;
@@ -181,7 +183,6 @@
         validateMessage: '',
         validateDisabled: false,
         validator: {},
-        isNested: false,
         computedLabelWidth: ''
       };
     },
@@ -205,9 +206,7 @@
         descriptor[this.prop] = rules;
 
         const validator = new AsyncValidator(descriptor);
-        const model = {};
-
-        model[this.prop] = this.fieldValue;
+        const model = this.model || this.elForm.model;
 
         validator.validate(model, { firstFields: true }, (errors, invalidFields) => {
           this.validateState = !errors ? 'success' : 'error';
@@ -226,7 +225,7 @@
         this.validateState = '';
         this.validateMessage = '';
 
-        let model = this.form.model;
+        let model = this.model || this.elForm.model;
         let value = this.fieldValue;
         let path = this.prop;
         if (path.indexOf(':') !== -1) {
@@ -250,7 +249,7 @@
         this.broadcast('ElTimeSelect', 'fieldReset', this.initialValue);
       },
       getRules() {
-        let formRules = this.form.rules;
+        let formRules = this.elForm.rules;
         const selfRules = this.rules;
         const requiredRule = this.required !== undefined ? { required: !!this.required } : [];
 
