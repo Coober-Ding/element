@@ -28,7 +28,7 @@
             <i class="el-dialog__close el-icon el-icon-close"></i>
           </button>
         </div>
-        <div class="el-dialog__body" v-if="rendered"><slot></slot></div>
+        <div class="el-dialog__body" v-if="rendered && !needDestroy"><slot></slot></div>
         <div class="el-dialog__footer" v-if="$slots.footer">
           <slot name="footer"></slot>
         </div>
@@ -151,6 +151,9 @@
           }
         }
         return style;
+      },
+      needDestroy() {
+        return this.destroyOnClose && !this.visible;
       }
     },
 

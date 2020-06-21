@@ -29,6 +29,7 @@ const install = function(Vue, opts = {}) {
 
   Vue.use(InfiniteScroll);
   Vue.use(Loading.directive);
+  Vue.use(PageFrame);
 
   Vue.prototype.$ELEMENT = {
     size: opts.size || '',

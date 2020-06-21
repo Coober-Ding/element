@@ -1,5 +1,14 @@
 ## 更新日志
 
+### entropy平台扩展版本
+#### 新特性
+- Form-Item
+  - 可以接收model来覆盖form的model
+  - 自定义验证方法，第四个参数可以收到model，便于关联字段验证。
+  - listener可以监听输入控件的事件回调处理方法，可以用于加载关联字段等功能。
+- Dialog
+  - destroy-on-close为true时,会正确销毁内容
+  - 提供open(params)和close()两个api，用来控制打开和关闭，params和dialog会传到scope中
 ### 2.13.0
 
 *2019-11-26*

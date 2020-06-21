@@ -80,7 +80,8 @@
         type: Boolean,
         default: true
       },
-      size: String
+      size: String,
+      listeners: Array
     },
     components: {
       // use this component to calculate auto width
@@ -142,7 +143,7 @@
         return isNested;
       },
       fieldValue() {
-        const model = this.model || this.elForm.model;
+        const model = this.getModel();
         if (!model || !this.prop) { return; }
 
         let path = this.prop;
@@ -206,7 +207,7 @@
         descriptor[this.prop] = rules;
 
         const validator = new AsyncValidator(descriptor);
-        const model = this.model || this.elForm.model;
+        const model = this.getModel();
 
         validator.validate(model, { firstFields: true }, (errors, invalidFields) => {
           this.validateState = !errors ? 'success' : 'error';
@@ -225,7 +226,7 @@
         this.validateState = '';
         this.validateMessage = '';
 
-        let model = this.model || this.elForm.model;
+        let model = this.getModel();
         let value = this.fieldValue;
         let path = this.prop;
         if (path.indexOf(':') !== -1) {
@@ -258,6 +259,9 @@
 
         return [].concat(selfRules || formRules || []).concat(requiredRule);
       },
+      getModel() {
+        return this.model || this.elForm.model;
+      },
       getFilteredRule(trigger) {
         const rules = this.getRules();
 
@@ -270,10 +274,35 @@
           }
         }).map(rule => objectAssign({}, rule));
       },
+      getFilteredListener(trigger) {
+        return this.listeners.filter(listener => {
+          if (!listener.trigger || trigger === '') return true;
+          if (Array.isArray(listener.trigger)) {
+            return listener.trigger.indexOf(trigger) > -1;
+          } else {
+            return listener.trigger === trigger;
+          }
+        });
+      },
+      callListener(trigger) {
+        const listeners = this.getFilteredListener(trigger);
+        listeners.forEach(listener => {
+          const handler = listener.handler;
+          if (handler) {
+            handler(this.fieldValue, this.getModel());
+          }
+        });
+      },
       onFieldBlur() {
+        this.$nextTick(() => {
+          this.callListener('blur');
+        });
         this.validate('blur');
       },
       onFieldChange() {
+        this.$nextTick(() => {
+          this.callListener('change');
+        });
         if (this.validateDisabled) {
           this.validateDisabled = false;
           return;
@@ -287,7 +316,7 @@
       addValidateEvents() {
         const rules = this.getRules();
 
-        if (rules.length || this.required !== undefined) {
+        if (rules.length || this.required !== undefined || this.listeners.length) {
           this.$on('el.form.blur', this.onFieldBlur);
           this.$on('el.form.change', this.onFieldChange);
         }
