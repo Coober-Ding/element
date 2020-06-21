@@ -107,7 +107,10 @@
         default: false
       },
 
-      destroyOnClose: Boolean
+      destroyOnClose: {
+        type: Boolean,
+        default: true
+      }
     },
 
     data() {

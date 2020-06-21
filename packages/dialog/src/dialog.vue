@@ -12,7 +12,7 @@
   </DialogComponent>
 </template>
 <script>
-import DialogComponent from './component';
+import DialogComponent from './component.vue';
 export default {
   name: 'ElDialog',
   inheritAttrs: false,

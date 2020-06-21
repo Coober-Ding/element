@@ -81,7 +81,12 @@
         default: true
       },
       size: String,
-      listeners: Array
+      listeners: {
+        type: Array,
+        default() {
+          return [];
+        }
+      }
     },
     components: {
       // use this component to calculate auto width
