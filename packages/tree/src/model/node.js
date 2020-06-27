@@ -341,6 +341,7 @@ export default class Node {
   }
 
   updateLeafState() {
+    this.isLeafByUser = this.data.isLeaf;
     if (this.store.lazy === true && this.loaded !== true && typeof this.isLeafByUser !== 'undefined') {
       this.isLeaf = this.isLeafByUser;
       return;
