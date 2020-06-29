@@ -12,7 +12,8 @@ class Route {
 export default {
   name: 'ElPageFrame',
   props: {
-    config: Object
+    config: Object,
+    keepAlive: String
   },
   data() {
     return {
@@ -120,6 +121,16 @@ export default {
           }
         }
       });
+    },
+    doRender(h) {
+      if (this.currentRoute.name != null) {
+        let page = this.pages[this.currentRoute.name];
+        if (page.component != null) {
+          return this.createPageElement(h, page.component, this.currentRoute, this);
+        } else {
+          return (<div></div>);
+        }
+      }
     }
   },
   computed: {
@@ -148,13 +159,10 @@ export default {
     }
   },
   render(h) {
-    if (this.currentRoute.name != null) {
-      let page = this.pages[this.currentRoute.name];
-      if (page.component != null) {
-        return this.createPageElement(h, page.component, this.currentRoute, this);
-      } else {
-        return (<div></div>);
-      }
+    if (this.keepAlive != null) {
+      return (<keep-alive include={this.keepAlive}>{this.doRender(h)}</keep-alive>);
+    } else {
+      return this.doRender(h);
     }
   }
 };
