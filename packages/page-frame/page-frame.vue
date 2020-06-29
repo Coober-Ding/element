@@ -151,7 +151,7 @@ export default {
     if (this.currentRoute.name != null) {
       let page = this.pages[this.currentRoute.name];
       if (page.component != null) {
-        return this.createPageElement(h, page.component, this.currentRoute);
+        return this.createPageElement(h, page.component, this.currentRoute, this);
       } else {
         return (<div></div>);
       }
