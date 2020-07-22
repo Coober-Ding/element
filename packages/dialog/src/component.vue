@@ -28,7 +28,7 @@
             <i class="el-dialog__close el-icon el-icon-close"></i>
           </button>
         </div>
-        <div class="el-dialog__body" v-if="rendered && !needDestroy"><slot></slot></div>
+        <div class="el-dialog__body" v-if="!destroyOnClose ? rendered : visibleWithTransition"><slot></slot></div>
         <div class="el-dialog__footer" v-if="$slots.footer">
           <slot name="footer"></slot>
         </div>
@@ -116,7 +116,9 @@
     data() {
       return {
         closed: false,
-        key: 0
+        key: 0,
+        // 打开时立马为true，关闭时等动画结束后为false
+        visibleWithTransition: false
       };
     },
 
@@ -124,6 +126,7 @@
       visible(val) {
         if (val) {
           this.closed = false;
+          this.visibleWithTransition = true;
           this.$emit('open');
           this.$el.addEventListener('scroll', this.updatePopper);
           this.$nextTick(() => {
@@ -154,9 +157,6 @@
           }
         }
         return style;
-      },
-      needDestroy() {
-        return this.destroyOnClose && !this.visible;
       }
     },
 
@@ -194,6 +194,7 @@
         this.$emit('opened');
       },
       afterLeave() {
+        this.visibleWithTransition = false;
         this.$emit('closed');
       }
     },
