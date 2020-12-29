@@ -9,7 +9,6 @@
       @click.self="handleWrapperClick">
       <div
         role="dialog"
-        :key="key"
         aria-modal="true"
         :aria-label="title || 'dialog'"
         :class="['el-dialog', { 'is-fullscreen': fullscreen, 'el-dialog--center': center }, customClass]"
@@ -28,7 +27,7 @@
             <i class="el-dialog__close el-icon el-icon-close"></i>
           </button>
         </div>
-        <div class="el-dialog__body" v-if="!destroyOnClose ? rendered : visibleWithTransition"><slot></slot></div>
+        <div class="el-dialog__body" v-if="!destroyOnClose ? rendered : bodyRenderAbleWithTransition"><slot></slot></div>
         <div class="el-dialog__footer" v-if="$slots.footer">
           <slot name="footer"></slot>
         </div>
@@ -116,9 +115,8 @@
     data() {
       return {
         closed: false,
-        key: 0,
         // 打开时立马为true，关闭时等动画结束后为false
-        visibleWithTransition: false
+        bodyRenderAbleWithTransition: false
       };
     },
 
@@ -126,7 +124,7 @@
       visible(val) {
         if (val) {
           this.closed = false;
-          this.visibleWithTransition = true;
+          this.bodyRenderAbleWithTransition = true;
           this.$emit('open');
           this.$el.addEventListener('scroll', this.updatePopper);
           this.$nextTick(() => {
@@ -138,11 +136,6 @@
         } else {
           this.$el.removeEventListener('scroll', this.updatePopper);
           if (!this.closed) this.$emit('close');
-          if (this.destroyOnClose) {
-            this.$nextTick(() => {
-              this.key++;
-            });
-          }
         }
       }
     },
@@ -194,7 +187,7 @@
         this.$emit('opened');
       },
       afterLeave() {
-        this.visibleWithTransition = false;
+        this.bodyRenderAbleWithTransition = false;
         this.$emit('closed');
       }
     },
@@ -202,6 +195,7 @@
     mounted() {
       if (this.visible) {
         this.rendered = true;
+        this.bodyRenderAbleWithTransition = true;
         this.open();
         if (this.appendToBody) {
           document.body.appendChild(this.$el);
